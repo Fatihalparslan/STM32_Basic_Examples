@@ -87,9 +87,9 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
-  MX_USART2_UART_Init();
+  //MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
-
+  USART_Init();
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -219,9 +219,8 @@ void USART_TransmitString(char *c){
 }
 void USART_Init(void){
 	RCC->APB2ENR |= RCC_APB2ENR_IOPAEN;     	  //Enable GPIOA
-	RCC->APB2ENR |= RCC_APB1ENR_USART2EN;       //Enable USART1
+	RCC->APB1ENR |= RCC_APB1ENR_USART2EN;       //Enable USART1
 
-	GPIOA->CRL = 0;
 	GPIOA->CRL|=(0x01<<15);
     GPIOA->CRL&=~(0x01<<14);
     GPIOA->CRL&=~(0x01<<13);
@@ -232,15 +231,16 @@ void USART_Init(void){
     GPIOA->CRL|=(0x01<<9);                                   //MODE1 1
     GPIOA->CRL|=(0X01<<8);                                   //MODE0 1
 
-	GPIOA->ODR |= 1<<3;  // Pull Up for PA3
 
     USART2->CR1&=~(0x01<<12);                               //set m bit in CR1 8
     USART2->CR2&=~(0x01<<13);                                //set CR2 stop bit  1
     USART2->CR2&=~(0x01<<12);
-    USART2->BRR=0x138;                                       //set USART BRR PCLCK1 36MHz pg 799 BRR must be 19.5 0.5x16=8 0x13,USART BRR 0x138
+    USART2->BRR = (0x138) ;                                 //set USART BRR PCLCK1 36MHz pg 799 BRR must be 19.5 0.5x16=8 0x13,USART BRR 0x138
     HAL_Delay(10);
-    USART2->CR1|=(0x01<<3);                                 //Enable transmitting
-    USART2->CR1|=(0x01<<13);                                 //set UE bit in CR1 1
+
+    USART2->CR1 |= USART_CR1_TE; //transmitter enable
+    USART2->CR1 |= USART_CR1_RE; //receiver enable
+    USART2->CR1 |= USART_CR1_UE; //usart enable
 
 }
 /* USER CODE END 4 */
